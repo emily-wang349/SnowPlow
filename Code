@@ -1,0 +1,360 @@
+/*
+ * Author: Emily Wang
+ * Date: March 24, 2016
+ * Assignment: Snow Plow
+ * Due Date :March 30, 2016
+ * Description: gui version
+ */
+
+//IMPORT NEEDED PACKAGES//
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class SnowPlow extends JFrame implements ActionListener {
+  
+  //static variables declaration//
+  static int column = 0;
+  static int r = 5, c = 5;
+  static int time = 0;
+  static Timer timer;
+  static JLabel used;
+  
+  
+  //2D arrays declaration//
+  JLabel num[][];
+  int grid[][];
+  
+  
+  // ADD PANELS//
+  static JPanel Intro = new JPanel(); // intro panel
+  static JPanel button = new JPanel(); // button panel
+  static JPanel Grid = new JPanel(); // grid panel
+  static JPanel instruction = new JPanel();
+  
+  
+  // ADD COMPONENTS//
+  JLabel name = new JLabel("Please enter your name: ");
+  JTextField N = new JTextField("name", 15); // label and textfield for name
+  JLabel R = new JLabel("Row: ");
+  JTextField row = new JTextField("5", 5);
+  JLabel C = new JLabel("Column: ");
+  JTextField col = new JTextField("5", 5); // label and textfield for row and column
+  JButton enter = new JButton("generate grid"); // button
+  JButton plow = new JButton("Plow");
+  JButton restart = new JButton("Regenerate Grid");
+  JButton rule = new JButton("How To Use");
+  JButton back = new JButton("back");
+  JButton menu = new JButton("Back to menu");
+  
+  
+  // static layouts//
+  static GridLayout Whole;
+  static BoxLayout ins;
+  static GridLayout in;
+  static GridLayout p;
+  
+  
+  // constructor//
+  public SnowPlow() {
+    setTitle("Snow Plow Program");
+    setSize(700, 700); // set title and size of program
+    
+    
+    used = new JLabel(" ", JLabel.CENTER);
+    
+    
+    // action listeners//
+    enter.addActionListener(this);
+    plow.addActionListener(this);
+    restart.addActionListener(this);
+    rule.addActionListener(this);
+    back.addActionListener(this);
+    menu.addActionListener(this);
+    
+    
+    // layouts//
+    Whole = new GridLayout(4, 2);
+    in = new GridLayout(6, 1);
+    ins = new BoxLayout(Intro, BoxLayout.Y_AXIS);
+    p = new GridLayout(5, 1);
+    
+    
+    setLayout(new BorderLayout()); // set entire frame to borderlayout
+    
+    // add components to intro panel/
+    Intro.setLayout(Whole);
+    Intro.add(name);
+    Intro.add(N);
+    Intro.add(R);
+    Intro.add(row);
+    Intro.add(C);
+    Intro.add(col);
+    Intro.add(enter);
+    Intro.add(rule);
+    
+    
+    add(Intro, BorderLayout.CENTER); // add intro panel
+    setVisible(true);
+  }
+  
+  //ACTION LISTENERS- BUTTONS//
+  public void actionPerformed(ActionEvent event) {
+    String command = event.getActionCommand();
+    
+    
+    // if user presses how to use button//
+    if (command.equals("How To Use")) {
+      Intro.removeAll();
+      Intro.setLayout(in);
+      
+      //set 5 labels to 5 lines of instruction//
+      Font labels = new Font("Avenir", Font.PLAIN, 20);
+      JLabel use1 = new JLabel("- enter the number of rows and columns you want the grid to be ", JLabel.CENTER);
+      JLabel use2 = new JLabel("- click generate grid to see the randomly generated grid ", JLabel.CENTER);
+      JLabel use3 = new JLabel("- after seeing the grid, click plow to change touching 1s to 0s", JLabel.CENTER);
+      JLabel use4 = new JLabel("- if you want to regenerate a grid, click regenerate grid", JLabel.CENTER);
+      JLabel use5 = new JLabel("- after clicking regenerate grid, click plow execute program again", JLabel.CENTER);
+      
+      //set the font of all 5 labels//
+      use1.setFont(labels);
+      use2.setFont(labels);
+      use3.setFont(labels);
+      use4.setFont(labels);
+      use5.setFont(labels);
+      
+      //add the 5 labels onto intro panel//
+      Intro.add(use1);
+      Intro.add(use2);
+      Intro.add(use3);
+      Intro.add(use4);
+      Intro.add(use5);
+      Intro.add(back); // adding all rules onto instruction panel
+      
+      add(Intro);
+      clear();
+    }
+    
+    
+    //if user presses back on the instruction page or back to menu on the grid page//
+    if (command.equals("back") || command.equals("Back to menu")) {
+      //remove everything on intro panel//
+      Intro.removeAll();
+      
+      //remove grid if it is there//
+      remove(Grid);
+      
+      //add all the components on the original intro panel back//
+      Intro.setLayout(Whole);
+      Intro.add(name);
+      Intro.add(N);
+      Intro.add(R);
+      Intro.add(row);
+      Intro.add(C);
+      Intro.add(col);
+      Intro.add(enter);
+      Intro.add(rule);
+      add(Intro, BorderLayout.CENTER);
+      clear();
+    } // add all components back onto intro panel
+    
+    
+    //if user presses generate grid on the intro panel//
+    if (command.equals("generate grid")) {
+      // get the user's name from textfield//
+      String n = N.getText();
+      
+      Grid.removeAll();
+      //remove all components on the intro panel/
+      Intro.removeAll();
+      
+      //output a greeting on a label//
+      JLabel NAME = new JLabel("Hello " + n + ", Welcome to the snow plow program!", JLabel.CENTER);
+      NAME.setFont(new Font("Avenir", Font.PLAIN, 30));
+      
+      //add components onto the intro panel//
+      Intro.setLayout(p);
+      Intro.add(NAME); // clear the intro panel and output user greeting
+      Intro.add(plow);
+      Intro.add(restart);
+      Intro.add(menu);
+      Intro.add(used);
+      
+      //get the row and column numbers user entered from textfields//
+      String a, b;
+      a = row.getText();
+      b = col.getText(); // get the string value from the two textfields
+      r = Integer.parseInt(a);
+      c = Integer.parseInt(b); // convert them to integer values
+      
+      //set layout of the grid//
+      GridLayout label_display = new GridLayout(r, c);
+      Grid.setLayout(label_display);
+      
+      //declare the 2D array numbers and labels//
+      grid = new int[r][c]; // declare the 2D number array with the size user inputed
+      num = new JLabel[r][c]; // declare 2D label array with the same size as the number array
+      
+      //call initialize method to initialize all labels to empty space//
+      initialize(r, c);
+      
+      // call generate method to store random values into the array//
+      generate(grid, r, c); 
+      
+      // call method assign to assign the values from the number array grid into this label//
+      assign(grid, r, c); 
+      
+      //add panels//
+      add(Intro, BorderLayout.NORTH);
+      add(Grid, BorderLayout.CENTER);
+      
+      clear();
+    }
+    
+    
+    //if the user presses plow button, use recursion to perform task//
+    if (command.equals("Plow")) {
+      time = 0;
+      int exist = check(grid, r, c); // call method check and store the returned value into variable exist
+      Intro.setLayout(p);
+      int r_change = 0; // row value of first one if found
+      
+      if (exist == -1) {
+        used.setText("Snow plow not used"); // if 1 does not exist, set a label to snow plow not used
+      } 
+      else {
+        used.setText(" ");
+        change(grid, r_change, exist); // call method to make changes to the grid
+      }
+      clear();
+    }
+    
+    
+    //if user presses regenerate grid on the grid page//
+    if (command.equals("Regenerate Grid")) {
+      //remove existing grid//
+      Grid.removeAll();
+      
+      used.setText(" ");
+      
+      generate(grid, r, c); // call generate method to store random values into the array
+      assign(grid, r, c); // call method assign to assign the values from the number array grid into this label
+      clear();
+      
+    }
+  }
+  
+  
+  //initialize method to initialize JLabels//
+  public void initialize(int r, int c) {
+    for (int i = 0; i < r; i++) {
+      for (int j = 0; j < c; j++)
+        num[i][j] = new JLabel(" ");   //set all JLabels to a space
+    }
+  }
+  
+  
+  //generate method used to generate random numbers to number array//
+  public static void generate(int[][] a, int r, int c) {
+    for (int i = 0; i < r; i++) {
+      for (int j = 0; j < c; j++)
+        a[i][j] = (int) (Math.random() * 2 + 1); // assign 1s and 2s randomly to the 2D number array
+    }
+  }
+  
+  
+  //assign method used to add all numbers on number array onto JLabel array and display them on grid//
+  public void assign(int b[][], int r, int c) {
+    
+    for (int i = 0; i < r; i++) {
+      for (int j = 0; j < c; j++) {
+        num[i][j].setText(" " + String.valueOf(b[i][j])); //set text in each element of JLabel to the value in the array
+        
+        num[i][j].setFont(new Font("Times New Roman", Font.BOLD, 30));   //set the font
+        if (b[i][j] == 1) {
+          num[i][j].setForeground(new Color(135, 206, 250));  //set different colors to 1, 2, and 0
+          num[i][j].setBackground(new Color(255, 255, 204));
+          num[i][j].setOpaque(true);
+        } else if (b[i][j] == 2) {
+          num[i][j].setForeground(new Color(255, 204, 255));
+          num[i][j].setBackground(new Color(204, 255, 229));
+          num[i][j].setOpaque(true);
+        } 
+        Grid.add(num[i][j]); // add all labels onto panel Grid
+      }
+    }
+  }
+  
+  
+  //check method used to check if there is 1 in the first row and return position of 1//
+  public int check(int a[][], int r, int c) {
+    int one = -1; // initialize variable one to -1
+    
+    for (int i = 0; i < c; i++) {
+      if (a[0][i] == 1) {
+        one = i; // if there is 1 in first row, store the value of column into one and break the loop
+        break;   
+      }
+    }
+    return one; // return the value in one
+  }
+  
+  
+  //actual recursion method to perform the task//
+  public void change(int[][] a, int R, int C) {
+    
+    int r = a.length;
+    int c = a[0].length;
+    column = a[0].length;
+    
+    if (a[R][C] == 1) { // if the number at R,C is 1, change to 0 and call recursive methods
+      a[R][C] = 0;
+      
+      delay(a,R,C); //call delay method and pass the array, row, and col values into it to delay display
+      
+      if (R > 0 && C > 0)
+        change(a, R - 1, C - 1); // move down and left if row and col are both greater than 0
+      if (C < c - 1)
+        change(a, R, C + 1); // move right one if it is less than number of col-1
+      if (C > 0)
+        change(a, R, C - 1); // move left one if point c>0
+      if (R < r - 1 && C < c - 1)
+        change(a, R + 1, C + 1); // move up and right it it does not go past boundary
+      if (R > 0 && C < c - 1)
+        change(a, R - 1, C + 1); // move down and right
+      if (R < r - 1)
+        change(a, R + 1, C); // move up
+      if (R > 0)
+        change(a, R - 1, C); // move down
+      if (R < r - 1 && C > 0)
+        change(a, R + 1, C - 1); // move up and left
+      // ALL 8 POSSIBILITIES IN RECURSION//
+    }
+  }
+  
+  public void clear() {
+    validate();
+    repaint();   //validate and repaint after remove all and adding new components
+  }
+  
+  //delay method//
+  public void delay (final int [][]a, final int r, final int c){//change 1s to 0s one by one with swing timer
+    timer = new Timer(time++ * 300, new ActionListener(){
+      public void actionPerformed (ActionEvent e){
+        ((JLabel) Grid.getComponent(r*column + c)).setText("0"); 
+        ((JLabel) Grid.getComponent(r*column + c)).setBackground(new Color(229, 204, 255));
+        ((JLabel) Grid.getComponent(r*column + c)).setForeground(new Color(153, 255, 255));
+        ((JLabel) Grid.getComponent(r*column + c)).setOpaque(true);
+        //get the component of the label 1, change to 0 and change color of text and background//
+      } 
+    });
+    timer.setRepeats(false); // ensures timer does not repeat 
+    timer.start(); // starts the timer 
+  } 
+  
+  
+  public static void main(String args[]) {
+    new SnowPlow(); // adding frame to main
+  }
+}
+
